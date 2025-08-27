@@ -1,34 +1,28 @@
-# Use Python 3.11 slim image for building
+# Stage 1: Build static site
 FROM python:3.11-slim as builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY static_site_generator.py .
+# Copy source code and assets
+COPY main.py .
+COPY src/ ./src/
 COPY templates/ ./templates/
+COPY content/ ./content/
 
-# Copy markdown files
-COPY markdown/ ./markdown/
+# Generate static HTML into /app/output
+RUN python main.py
 
-# Generate static HTML
-RUN python static_site_generator.py --input-dir ./markdown --output-dir ./html
-
-# Use nginx to serve static files
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Copy generated HTML files to nginx
-COPY --from=builder /app/html /usr/share/nginx/html
+# Copy generated site into Nginx's html directory
+COPY --from=builder app/dist /usr/share/nginx/html
 
-# Copy custom nginx configuration (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose port 80
+# Expose port 80 (default for Nginx)
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

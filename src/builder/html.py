@@ -10,6 +10,86 @@ from src.templates.loader import load_template
 from src.parser.markdown import parse_markdown
 from src.config.markdown import MARKDOWN_PATTERN
 
+def generate_navigation(pages_info, logger):
+    """Generate navigation structure from pages information."""
+    # Group pages by their directory structure
+    pages_by_dir = {}
+    
+    for page in pages_info:
+        url_path = page['url_path']
+        title = page['title']
+        
+        # Split the URL path into parts
+        parts = url_path.strip('/').split('/')
+        
+        # Create directory key
+        if len(parts) == 1:
+            # Root level page
+            dir_key = "root"
+        else:
+            # Nested page
+            dir_key = "/".join(parts[:-1])
+        
+        if dir_key not in pages_by_dir:
+            pages_by_dir[dir_key] = []
+        
+        pages_by_dir[dir_key].append({
+            'title': title,
+            'url': url_path,
+            'filename': parts[-1]
+        })
+    
+    logger.debug(f"Pages by directory: {pages_by_dir}")
+    return pages_by_dir
+
+def generate_navigation_html(navigation, current_url):
+    """Generate HTML for the navigation dropdown."""
+    html = '<nav class="site-navigation">\n'
+    html += '  <div class="nav-dropdown">\n'
+    html += '    <button class="nav-dropdown-btn">Navigation ▼</button>\n'
+    html += '    <div class="nav-dropdown-content">\n'
+    
+    html += generate_navigation_items(navigation, current_url)
+    
+    html += '    </div>\n'
+    html += '  </div>\n'
+    html += '</nav>\n'
+    
+    return html
+
+def generate_navigation_items(navigation, current_url):
+    """Generate navigation items HTML."""
+    html = ''
+    
+    # Sort directories to ensure consistent order
+    sorted_dirs = sorted(navigation.keys())
+    
+    for dir_key in sorted_dirs:
+        pages = navigation[dir_key]
+        
+        if dir_key == "root":
+            # Root level pages
+            for page in pages:
+                is_current = page['url'] == current_url
+                current_class = ' class="current"' if is_current else ''
+                html += f'      <a href="{page["url"]}"{current_class}>{page["title"]}</a>\n'
+        else:
+            # Nested directory
+            dir_name = dir_key.split('/')[-1]  # Get the last part of the directory path
+            html += f'      <div class="nav-subdir">\n'
+            html += f'        <span class="nav-subdir-title">{dir_name}/</span>\n'
+            html += f'        <div class="nav-subdir-content">\n'
+            
+            for page in pages:
+                is_current = page['url'] == current_url
+                current_class = ' class="current"' if is_current else ''
+                html += f'          <a href="{page["url"]}"{current_class}>{page["title"]}</a>\n'
+            
+            html += f'        </div>\n'
+            html += f'      </div>\n'
+    
+    return html
+
 def build_site(logger, content_dir, output_dir, template_file):
     """Build the static site with comprehensive logging.
     
@@ -47,39 +127,83 @@ def build_site(logger, content_dir, output_dir, template_file):
             logger.warning("No markdown files found in content directory")
             return (0, 0)  # 0 successful, 0 errors (no files to process)
         
-        processed_count = 0
+        # First pass: collect all page information
+        pages_info = []
         error_count = 0
-        
         for md_file in markdown_files:
-            logger.info(f"Processing: {md_file}")
-            
             try:
                 # Parse markdown
                 fm, html_body = parse_markdown(md_file, logger)
                 
                 # Extract metadata
                 title = fm.get("title", md_file.stem)
-                logger.debug(f"Page title: {title}")
                 
-                # Determine output path
-                rel_path = md_file.relative_to(content_dir).with_suffix("")
-                slug = fm.get("slug", str(rel_path))
-                logger.debug(f"Slug: {slug}")
+                # Determine output path - preserve directory structure
+                rel_path = md_file.relative_to(content_dir)
+                slug = fm.get("slug")
                 
-                # Create output path
-                if slug.endswith("/"):
-                    output_path = Path(output_dir) / slug / "index.html"
+                if slug:
+                    # If slug is specified in frontmatter, use it
+                    if slug.endswith("/"):
+                        output_path = Path(output_dir) / slug / "index.html"
+                        url_path = f"/{slug}"
+                    elif slug == "index":
+                        # Special case: slug "index" should create root index.html
+                        output_path = Path(output_dir) / "index.html"
+                        url_path = "/"
+                    else:
+                        output_path = Path(output_dir) / f"{slug}.html"
+                        url_path = f"/{slug}"
                 else:
-                    output_path = Path(output_dir) / slug / "index.html"
+                    # Generate HTML files directly with same name as markdown files
+                    if rel_path.stem == "index":
+                        # For index.md files, create index.html in the same directory
+                        output_path = Path(output_dir) / rel_path.parent / "index.html"
+                        url_path = f"/{rel_path.parent}" if str(rel_path.parent) != "." else "/"
+                    else:
+                        # For other files, create .html file directly
+                        output_path = Path(output_dir) / rel_path.parent / f"{rel_path.stem}.html"
+                        url_path = f"/{rel_path.parent}/{rel_path.stem}" if str(rel_path.parent) != "." else f"/{rel_path.stem}"
                 
+                pages_info.append({
+                    'title': title,
+                    'url_path': url_path,
+                    'output_path': output_path,
+                    'html_body': html_body,
+                    'frontmatter': fm
+                })
+                
+            except Exception as e:
+                logger.error(f"❌ Failed to process {md_file}: {e}")
+                error_count += 1
+                continue
+        
+        # Generate navigation structure
+        navigation = generate_navigation(pages_info, logger)
+        
+        # Second pass: build all pages with navigation
+        processed_count = 0
+        for page_info in pages_info:
+            logger.info(f"Processing: {page_info['output_path']}")
+            
+            try:
+                # Extract page information
+                title = page_info['title']
+                html_body = page_info['html_body']
+                output_path = page_info['output_path']
+                
+                logger.debug(f"Page title: {title}")
                 logger.debug(f"Output path: {output_path}")
                 
                 # Ensure parent directories exist
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 logger.debug(f"Created directory structure: {output_path.parent}")
                 
-                # Generate HTML
-                html = template.replace("{title}", title).replace("{content}", html_body)
+                # Generate navigation HTML
+                navigation_html = generate_navigation_html(navigation, page_info['url_path'])
+                
+                # Generate HTML with navigation
+                html = template.replace("{title}", title).replace("{content}", html_body).replace("{navigation}", navigation_html)
                 
                 # Write file
                 output_path.write_text(html, encoding="utf-8")
@@ -87,7 +211,7 @@ def build_site(logger, content_dir, output_dir, template_file):
                 processed_count += 1
                 
             except Exception as e:
-                logger.error(f"❌ Failed to process {md_file}: {e}")
+                logger.error(f"❌ Failed to process {page_info['output_path']}: {e}")
                 error_count += 1
                 continue
         
