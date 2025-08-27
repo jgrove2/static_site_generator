@@ -13,7 +13,7 @@ from src.config.markdown import MARKDOWN_PATTERN
 def generate_navigation(pages_info, logger):
     """Generate navigation structure from pages information."""
     # Group pages by their directory structure
-    pages_by_dir = {}
+    base_pages = []
     
     for page in pages_info:
         url_path = page['url_path']
@@ -22,58 +22,42 @@ def generate_navigation(pages_info, logger):
         # Split the URL path into parts
         parts = url_path.strip('/').split('/')
         
-        # Create directory key
+        # Check if this is a base-level page (no directory structure)
         if len(parts) == 1:
-            # Root level page
-            dir_key = "root"
-        else:
-            # Nested page
-            dir_key = "/".join(parts[:-1])
-        
-        if dir_key not in pages_by_dir:
-            pages_by_dir[dir_key] = []
-        
-        pages_by_dir[dir_key].append({
-            'title': title,
-            'url': url_path,
-            'filename': parts[-1]
-        })
+            # Base level page - add to base_pages list
+            base_pages.append({
+                'title': title,
+                'url': url_path,
+                'filename': parts[-1] if parts[-1] else 'index'
+            })
     
-    logger.debug(f"Pages by directory: {pages_by_dir}")
-    return pages_by_dir
+    return base_pages
 
 def format_display_name(name):
     """Convert underscores to spaces and capitalize each word."""
     return name.replace('_', ' ').title()
 
-def generate_navigation_html(navigation, current_url):
+def generate_navigation_html(base_pages, current_url):
     """Generate HTML for the navigation."""
     html = '<nav class="site-navigation">\n'
     
-    # Add root-level links directly
-    if "root" in navigation:
-        for page in navigation["root"]:
+    # Add direct links for base pages first
+    if base_pages:
+        for page in base_pages:
             is_current = page['url'] == current_url
             current_class = ' class="current"' if is_current else ''
             display_title = format_display_name(page["title"])
             html += f'  <a href="{page["url"]}"{current_class}>{display_title}</a>\n'
     
-    # Add dropdowns for nested folders
-    sorted_dirs = sorted([k for k in navigation.keys() if k != "root"])
-    for dir_key in sorted_dirs:
-        pages = navigation[dir_key]
-        dir_name = dir_key.split('/')[-1]  # Get the last part of the directory path
-        display_dir_name = format_display_name(dir_name)
         html += f'  <div class="nav-folder">\n'
-        html += f'    <span class="nav-folder-title">{display_dir_name}▼</span>\n'
+        html += f'    <span class="nav-folder-title">Navigation ▼</span>\n'
         html += f'    <div class="nav-folder-dropdown">\n'
-        
-        for page in pages:
+        for page in base_pages:
             is_current = page['url'] == current_url
             current_class = ' class="current"' if is_current else ''
             display_title = format_display_name(page["title"])
             html += f'      <a href="{page["url"]}"{current_class}>{display_title}</a>\n'
-        
+            
         html += f'    </div>\n'
         html += f'  </div>\n'
     
@@ -90,6 +74,12 @@ def build_site(logger, content_dir, output_dir, template_file):
         tuple: (successful_conversions, error_count) - Number of successful conversions and errors
     """
     try:
+        # Clear output directory
+        import shutil
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+            logger.info(f"Cleared existing output directory: {output_dir}")
+        
         # Create output directory
         os.makedirs(output_dir, exist_ok=True)
         logger.info(f"Created/verified output directory: {output_dir}")
@@ -137,6 +127,7 @@ def build_site(logger, content_dir, output_dir, template_file):
                 
                 if slug:
                     # If slug is specified in frontmatter, use it
+                    slug = slug.lower().replace(" ", "_")
                     if slug.endswith("/"):
                         output_path = Path(output_dir) / slug / "index.html"
                         url_path = f"/{slug}"
@@ -147,24 +138,20 @@ def build_site(logger, content_dir, output_dir, template_file):
                     else:
                         # Preserve directory structure when using slug
                         dir_path = rel_path.parent
+                        print(dir_path)
                         if str(dir_path) != ".":
                             # File is in a subdirectory, preserve the directory structure
-                            output_path = Path(output_dir) / dir_path / f"{slug}.html"
-                            url_path = f"/{dir_path}/{slug}.html"
+                            output_path = Path(output_dir) / dir_path / slug / "index.html"
+                            url_path = f"/{dir_path}/{slug}"
                         else:
                             # File is in root directory
-                            output_path = Path(output_dir) / f"{slug}.html"
-                            url_path = f"/{slug}.html"
+                            output_path = Path(output_dir) / slug / "index.html"
+                            url_path = f"/{slug}"
                 else:
                     # Generate HTML files directly with same name as markdown files
-                    if rel_path.stem == "index":
-                        # For index.md files, create index.html in the same directory
-                        output_path = Path(output_dir) / rel_path.parent / "index.html"
-                        url_path = f"/{rel_path.parent}" if str(rel_path.parent) != "." else "/"
-                    else:
-                        # For other files, create .html file directly
-                        output_path = Path(output_dir) / rel_path.parent / f"{rel_path.stem}.html"
-                        url_path = f"/{rel_path.parent}/{rel_path.stem}.html" if str(rel_path.parent) != "." else f"/{rel_path.stem}.html"
+                    print(rel_path.stem)
+                    # For now, skip files without slug - you can add logic here later
+                    continue
                 
                 pages_info.append({
                     'title': title,
@@ -180,7 +167,12 @@ def build_site(logger, content_dir, output_dir, template_file):
                 continue
         
         # Generate navigation structure
-        navigation = generate_navigation(pages_info, logger)
+        for page in pages_info:
+            print(page['url_path'])
+            print(page['output_path'])
+            print(page['frontmatter'])
+            print("--------------------------------")
+        base_pages = generate_navigation(pages_info, logger)
         
         # Second pass: build all pages with navigation
         processed_count = 0
@@ -200,8 +192,8 @@ def build_site(logger, content_dir, output_dir, template_file):
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 logger.debug(f"Created directory structure: {output_path.parent}")
                 
-                # Generate navigation HTML
-                navigation_html = generate_navigation_html(navigation, page_info['url_path'])
+                # Generate navigation HTML for this specific page
+                navigation_html = generate_navigation_html(base_pages, page_info['url_path'])
                 
                 # Generate HTML with navigation
                 html = template.replace("{title}", title).replace("{content}", html_body).replace("{navigation}", navigation_html)

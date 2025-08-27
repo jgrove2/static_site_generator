@@ -1,36 +1,29 @@
 ---
-title: Welcome to My Static Site
-date: 2024-01-15
+title: Home
+date: 2025-08-26
 tags: [welcome, home]
 slug: index
 ---
 
-# Welcome to My Static Site
+# Hi there 👋
 
-This is the homepage of my static site generated with Python and markdown.
+## About Me
 
-## Features
+- ⚙️ Full stack developer with experience building scalable microservices and RESTful APIs Node.js, and .NET Core. I also have professional experience building SPAs and microfrontend services with React.
+- 🧠 Passionate about learning new technologies and building things — check out my latest projects here on GitHub or read more about them on my [blog](https://www.jgrove.dev).
+- 🌱 When I’m not working on full-stack applications or side projects, I enjoy running, hiking & backpacking, and caring for my ever-growing collection of houseplants.
+- 💬 Always happy to connect — feel free to reach out if you want to talk about backend architecture, side projects, or just swap trail recommendations!
 
-- **Markdown Support**: Full markdown syntax
-- **YAML Frontmatter**: Metadata support
-- **Logging**: Comprehensive logging throughout the build process
-- **Fast**: Static HTML generation
+### Reach out!
 
-## Code Example
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:justinwgrove@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/justinwgrove/)
+[![Jgrove.dev](https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://www.jgrove.dev)
 
-```python
-def hello_world():
-    print("Hello, World!")
-    return "Success!"
-```
+## Languages
 
-## Getting Started
+[![My Skills](https://skillicons.dev/icons?i=cs,ts,js,python,go,lua,bash,html,css)](https://skillicons.dev)
 
-1. Write markdown files in the `content/` directory
-2. Add YAML frontmatter for metadata
-3. Run the build script
-4. Deploy the generated HTML files
+## Tools & Frameworks
 
----
-
-_Built with ❤️ using Python_
+[![My Skills](https://skillicons.dev/icons?i=nodejs,express,dotnet,mongodb,postgres,sqlite,docker,nginx,redis,supabase,svelte,vscode,neovim,webpack,linux,windows,aws,cloudflare,git,github,gitlab,jenkins,jest,)](https://skillicons.dev)
