@@ -40,6 +40,10 @@ def format_display_name(name):
 def generate_navigation_html(base_pages, current_url):
     """Generate HTML for the navigation."""
     html = '<nav class="site-navigation">\n'
+
+    html += '<div class="nav-logo">Jgrove</div>\n'
+
+    html += '<div class="nav-links">'
     
     # Add direct links for base pages first
     if base_pages:
@@ -50,7 +54,7 @@ def generate_navigation_html(base_pages, current_url):
             html += f'  <a href="{page["url"]}"{current_class}>{display_title}</a>\n'
     
         html += f'  <div class="nav-folder">\n'
-        html += f'    <span class="nav-folder-title">Navigation ▼</span>\n'
+        html += f'    <span class="nav-folder-title"></span>\n'
         html += f'    <div class="nav-folder-dropdown">\n'
         for page in base_pages:
             is_current = page['url'] == current_url
@@ -61,6 +65,7 @@ def generate_navigation_html(base_pages, current_url):
         html += f'    </div>\n'
         html += f'  </div>\n'
     
+    html += '</div>\n'
     html += '</nav>\n'
     
     return html
