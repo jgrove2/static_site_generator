@@ -3,27 +3,49 @@ title: Home
 date: 2025-08-26
 tags: [welcome, home]
 slug: index
+description: Home page for Justin Groves personal website. This page includes an outline of what to expect on this site.
 ---
 
-# Hi there 👋
+# Justin Grove
 
-## About Me
+[LinkedIn](https://linkedin.com/in/justinwgrove) • [GitHub](https://github.com/jgrove2)
 
-- ⚙️ Full stack developer with experience building scalable microservices and RESTful APIs Node.js, and .NET Core. I also have professional experience building SPAs and microfrontend services with React.
-- 🧠 Passionate about learning new technologies and building things — check out my latest projects here on GitHub or read more about them on my [blog](https://www.jgrove.dev).
-- 🌱 When I’m not working on full-stack applications or side projects, I enjoy running, hiking & backpacking, and caring for my ever-growing collection of houseplants.
-- 💬 Always happy to connect — feel free to reach out if you want to talk about backend architecture, side projects, or just swap trail recommendations!
+---
 
-### Reach out!
+## 👨‍💻 About Me
 
-[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:justinwgrove@gmail.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/justinwgrove/)
-[![Jgrove.dev](https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://www.jgrove.dev)
+- Full-Stack Software Engineer (React, Node.js, C#, Python, AWS EKS)
+- Passionate about building secure, scalable distributed systems
+- Currently at **Travelers** working on cloud-native microservices
+- Graduate of **University of Connecticut** (B.S. Computer Science)
 
-## Languages
+---
 
-[![My Skills](https://skillicons.dev/icons?i=cs,ts,js,python,go,lua,bash,html,css)](https://skillicons.dev)
+## 📂 Sections
 
-## Tools & Frameworks
+### ⚙️ Tech
 
-[![My Skills](https://skillicons.dev/icons?i=nodejs,express,dotnet,mongodb,postgres,sqlite,docker,nginx,redis,supabase,svelte,vscode,neovim,webpack,linux,windows,aws,cloudflare,git,github,gitlab,jenkins,jest,)](https://skillicons.dev)
+- Technical deep dives (cloud, distributed systems, caching, etc.)
+- Experiments & Projects
+- Reflections on software engineering practices
+
+### 🏃 Life
+
+- Books I've read and am currently reading
+- Running activities and races I've completed
+- Backpacking adventures
+- Other hobbies and interests outside of tech
+
+### 📊 Stats / Now
+
+- Current focus: Idendity Provider Using Go and HTMX
+- Certifications: AWS Solutions Architect – Associate
+- Tech stack highlights: Go, TypeScript, Node.js, .NET Core, React, Redis, Docker, AWS, Java
+
+---
+
+## 📬 Contact
+
+- Email: justinwgrove@gmail.com
+- GitHub: [jgrove2](https://github.com/jgrove2)
+- LinkedIn: [justinwgrove](https://linkedin.com/in/justinwgrove)

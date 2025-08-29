@@ -9,66 +9,12 @@ from datetime import datetime
 from src.templates.loader import load_template
 from src.parser.markdown import parse_markdown
 from src.config.markdown import MARKDOWN_PATTERN
+from src.builder.navigation import generate_navigation, generate_navigation_html
+from src.builder.manifest import generate_manifest_json
+from src.builder.assets import copy_static_assets
+from src.builder.utils import extract_description
 
-def generate_navigation(pages_info, logger):
-    """Generate navigation structure from pages information."""
-    # Group pages by their directory structure
-    base_pages = []
-    
-    for page in pages_info:
-        url_path = page['url_path']
-        title = page['title']
-        
-        # Split the URL path into parts
-        parts = url_path.strip('/').split('/')
-        
-        # Check if this is a base-level page (no directory structure)
-        if len(parts) == 1:
-            # Base level page - add to base_pages list
-            base_pages.append({
-                'title': title,
-                'url': url_path,
-                'filename': parts[-1] if parts[-1] else 'index'
-            })
-    
-    return base_pages
 
-def format_display_name(name):
-    """Convert underscores to spaces and capitalize each word."""
-    return name.replace('_', ' ').title()
-
-def generate_navigation_html(base_pages, current_url):
-    """Generate HTML for the navigation."""
-    html = '<nav class="site-navigation">\n'
-
-    html += '<div class="nav-logo">Jgrove</div>\n'
-
-    html += '<div class="nav-links">'
-    
-    # Add direct links for base pages first
-    if base_pages:
-        for page in base_pages:
-            is_current = page['url'] == current_url
-            current_class = ' class="current"' if is_current else ''
-            display_title = format_display_name(page["title"])
-            html += f'  <a href="{page["url"]}"{current_class}>{display_title}</a>\n'
-    
-        html += f'  <div class="nav-folder">\n'
-        html += f'    <span class="nav-folder-title"></span>\n'
-        html += f'    <div class="nav-folder-dropdown">\n'
-        for page in base_pages:
-            is_current = page['url'] == current_url
-            current_class = ' class="current"' if is_current else ''
-            display_title = format_display_name(page["title"])
-            html += f'      <a href="{page["url"]}"{current_class}>{display_title}</a>\n'
-            
-        html += f'    </div>\n'
-        html += f'  </div>\n'
-    
-    html += '</div>\n'
-    html += '</nav>\n'
-    
-    return html
 
 
 
@@ -92,15 +38,15 @@ def build_site(logger, content_dir, output_dir, template_file):
         # Load template
         template = load_template(template_file, logger)
         
-        # Copy CSS file to output directory
-        css_source = Path(template_file).parent / "style.css"
-        css_dest = Path(output_dir) / "style.css"
-        if css_source.exists():
-            import shutil
-            shutil.copy2(css_source, css_dest)
-            logger.info(f"✅ Copied CSS file to: {css_dest}")
-        else:
-            logger.warning(f"CSS file not found: {css_source}")
+        # Copy static assets to output directory
+        template_dir = Path(template_file).parent
+        copy_static_assets(template_dir, output_dir, logger)
+        
+        # Generate and write manifest.json
+        manifest_content = generate_manifest_json("Jgrove", "Personal website and projects")
+        manifest_path = Path(output_dir) / "manifest.json"
+        manifest_path.write_text(manifest_content, encoding="utf-8")
+        logger.info(f"✅ Generated manifest.json: {manifest_path}")
         
         # Find all markdown files
         content_path = Path(content_dir)
@@ -158,12 +104,16 @@ def build_site(logger, content_dir, output_dir, template_file):
                     # For now, skip files without slug - you can add logic here later
                     continue
                 
+                # Extract or generate description
+                description = extract_description(fm, html_body)
+                
                 pages_info.append({
                     'title': title,
                     'url_path': url_path,
                     'output_path': output_path,
                     'html_body': html_body,
-                    'frontmatter': fm
+                    'frontmatter': fm,
+                    'description': description
                 })
                 
             except Exception as e:
@@ -200,8 +150,8 @@ def build_site(logger, content_dir, output_dir, template_file):
                 # Generate navigation HTML for this specific page
                 navigation_html = generate_navigation_html(base_pages, page_info['url_path'])
                 
-                # Generate HTML with navigation
-                html = template.replace("{title}", title).replace("{content}", html_body).replace("{navigation}", navigation_html)
+                # Generate HTML with navigation and description
+                html = template.replace("{title}", title).replace("{content}", html_body).replace("{navigation}", navigation_html).replace("{description}", page_info['description'])
                 
                 # Write file
                 output_path.write_text(html, encoding="utf-8")

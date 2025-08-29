@@ -3,8 +3,38 @@
   <head>
     <meta charset="utf-8" />
     <title>{title}</title>
+    <meta name="description" content="{description}" />
+    <meta name="author" content="Jgrove" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{title}" />
+    <meta property="og:description" content="{description}" />
+    <meta property="og:url" content="https://jgrove.dev" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="{title}" />
+    <meta property="twitter:description" content="{description}" />
+
     <link rel="stylesheet" href="/style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <script
       async
       defer
@@ -15,5 +45,28 @@
   <body>
     <header>{navigation}</header>
     <main>{content}</main>
+    <footer>
+      <div class="footer-content">
+        <nav class="footer-nav">
+          <a href="/">Home</a> | <a href="/tech">Tech</a> |
+          <a href="/life">Life</a>
+        </nav>
+
+        <div class="footer-social">
+          <a href="mailto:justinwgrove@gmail.com">📬 Email</a> •
+          <a href="https://github.com/jgrove2" target="_blank">💻 GitHub</a> •
+          <a href="https://linkedin.com/in/justinwgrove" target="_blank">
+            LinkedIn</a
+          >
+          •
+          <a href="https://www.strava.com/athletes/16645619" target="_blank"
+            >🏃 Strava</a
+          >
+        </div>
+
+        <p>© 2025 Justin Grove</p>
+        <p class="last-updated">Last updated: August 2025</p>
+      </div>
+    </footer>
   </body>
 </html>

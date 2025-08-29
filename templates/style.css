@@ -1,11 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
 :root {
-  --color-link: #00a2e7;
+  --color-link: #277fa5;
   --color-link-visited: #ca1a70;
   --color-link-hover: #0056b3;
-  --color-background: #fff;
+  --color-background: #eeeeee;
   --color-text: #454545;
-  --color-background-dark: #000;
-  --color-text-dark: #d9d9d9;
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -13,16 +13,16 @@
     --color-link: #00a2e7;
     --color-link-visited: #ca1a70;
     --color-link-hover: #0056b3;
-    --color-background: #fff;
+    --color-background: #ffff;
     --color-text: #454545;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-link: #00a2e7;
-    --color-link-visited: #ca1a70;
-    --color-link-hover: #0056b3;
+    --color-link: #3da5d1;
+    --color-link-visited: #b583f1;
+    --color-link-hover: #ec6fab;
     --color-background: #000;
     --color-text: #d9d9d9;
   }
@@ -45,7 +45,24 @@
   }
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.2;
+}
+
 html {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.6;
+  background-color: var(--color-background);
   header {
     position: sticky;
     top: 0;
@@ -54,11 +71,9 @@ html {
     background-color: var(--color-background);
   }
   body {
-    font-family: Open Sans, Arial;
     color: var(--color-text);
-    font-size: clamp(16px, 1.5vw, 20px);
     margin: 0 auto;
-    max-width: clamp(800px, 2vw, 1000px);
+    max-width: clamp(1000px, 2vw, 1200px);
     padding: 0;
     line-height: 1.4;
     -webkit-hyphens: auto;
@@ -96,6 +111,13 @@ img {
   .nav-logo {
     font-weight: bold;
     font-size: 1.5rem;
+    > a {
+      color: var(--color-text) !important;
+      text-decoration: none;
+      &:hover {
+        color: var(--color-link-hover) !important;
+      }
+    }
   }
   .nav-links {
     display: flex;
@@ -156,4 +178,33 @@ img {
   font-size: 1.5rem;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+footer {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.9rem;
+  border-top: 1px solid var(--color-text);
+}
+
+footer a {
+  color: var(--color-link);
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+
+footer a:hover {
+  text-decoration: none;
+}
+
+footer .footer-social {
+  margin-top: 0.5rem;
+}
+
+footer .last-updated {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text);
 }
